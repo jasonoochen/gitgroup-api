@@ -1,5 +1,9 @@
 {
   "github": {
     "token": "github_token"
+  },
+  "mongo": {
+    "user": "mongo_user",
+    "password": "mongo_password"
   }
 }
