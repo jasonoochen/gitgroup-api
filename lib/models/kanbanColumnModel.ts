@@ -38,7 +38,7 @@ export class KanbanColumn {
     return cards;
   }
 
-  public async save() {
+  public async save(): Promise<any> {
     const post = {
       name: this.name
     };

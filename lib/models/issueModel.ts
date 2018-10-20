@@ -1,7 +1,9 @@
-import { githubApi } from "../remoteConnection/github/githubAPI";
+import { githubApiPreview } from "remoteConnection/github/githubAPI";
 
 export class Issue {
   private id: string;
+  private owner: string;
+  private repos: string;
   private title: string;
   private body: string;
   private state: string;
@@ -13,11 +15,20 @@ export class Issue {
    * @param body the text body of the issue
    * @param state the state of the issue: open or close
    */
-  public constructor(id: string, title: string, body: string, state: string) {
-    this.id = id;
+  public constructor(
+    title: string,
+    body: string,
+    state: string,
+    owner: string,
+    repos: string,
+    id?: string
+  ) {
+    if (id) this.id = id;
     this.title = title;
     this.body = body;
-    if (state != "close" && state != "open")
+    this.owner = owner;
+    this.repos = repos;
+    if (state !== "close" && state !== "open")
       throw new RangeError("State must be 'close' or 'open'.");
 
     this.state = state;
@@ -81,6 +92,13 @@ export class Issue {
     this.state = "open";
   }
 
+  public getOwner(): string {
+    return this.owner;
+  }
+
+  public getRepos(): string {
+    return this.repos;
+  }
   /**
    * Get all issues for specific user and his repository
    * @param username
@@ -90,7 +108,7 @@ export class Issue {
     username: string,
     reposName: string
   ): Promise<any> {
-    const issuesData: any = await githubApi.get(
+    const issuesData: any = await githubApiPreview.get(
       `/repos/${username}/${reposName}/issues`
     );
     if (!issuesData.data) return issuesData;
@@ -98,13 +116,33 @@ export class Issue {
     for (let issue of issuesData) {
       const issueData = issue.data;
       const issueObj = new Issue(
-        issueData.node_id,
         issueData.title,
         issueData.body,
-        issueData.string
+        issueData.string,
+        issueData.user.login,
+        issueData.repository.name,
+        issueData.node_id
       );
       issues.push(issueObj);
     }
     return issues;
+  }
+
+  public async save(): Promise<any> {
+    const post = {
+      title: this.title,
+      body: this.body
+    };
+    let result: any;
+    try {
+      result = await githubApiPreview.post(
+        `/repos/${this.owner}/${this.repos}/issues`,
+        post
+      );
+      this.id = result.data.node_id;
+    } catch (error) {
+      throw error;
+    }
+    return result;
   }
 }
