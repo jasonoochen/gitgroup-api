@@ -1,6 +1,6 @@
-import axios from "axios";
 import * as config from "config";
 import { Repository } from "./repositoryModel";
+import { githubApi } from "../remoteConnection/github/githubAPI";
 
 /**
  * User Class
@@ -42,11 +42,7 @@ export class User {
    * @returns the Promise of the owner
    */
   public static async getMe(): Promise<any> {
-    const axiosConfig: any = {
-      headers: { Authorization: `token ${config.get("github.token")}` }
-    };
-    const url: string = `${config.get("github.apiUrl")}/user`;
-    const userDate: any = await axios.get(url, axiosConfig);
+    const userDate: any = await githubApi.get("/user");
     if (!userDate.data) return userDate;
     return new User(userDate.data.node_id, userDate.data.login);
   }
