@@ -6,4 +6,12 @@ const githubApi = axios.create({
   headers: { Authorization: `token ${config.get("github.token")}` }
 });
 
-export { githubApi };
+const githubApiPreview = axios.create({
+  baseURL: `${config.get("github.apiUrl")}`,
+  headers: {
+    Authorization: `token ${config.get("github.token")}`,
+    Accept: "application/vnd.github.inertia-preview+json"
+  }
+});
+
+export { githubApi, githubApiPreview };
