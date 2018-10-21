@@ -8,3 +8,8 @@ export const ProjectSchema = new Schema({
     required: true
   }
 });
+
+export class Project {
+  private id: string;
+  private name: string;
+}

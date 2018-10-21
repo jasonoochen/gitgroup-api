@@ -1,15 +1,11 @@
 import { User } from "../../models/userModel";
 
-describe("test class User", () => {
-  test("function getMe() should return the Promise of my user information", () => {
-    return User.getMe()
-      .then(user => {
-        console.log(user);
-        expect(typeof user.getId()).toBe("string");
-        expect(typeof user.getName()).toBe("string");
-      })
-      .catch(err => {
-        console.log(err);
-      });
+describe("test user class constructor", () => {
+  it("should create a new user object with basic name and id", () => {
+    const user: User = new User("test name", "1");
+    expect(user).toMatchObject({
+      id: "1",
+      name: "test name"
+    });
   });
 });

@@ -11,8 +11,9 @@ export class User {
   private name: string;
   private repositories: Repository[];
 
-  constructor(id: string, name: string) {
-    this.id = id;
+  constructor(name: string, id?: string, repositories?: Repository[]) {
+    if (id) this.id = id;
+    if (repositories) this.repositories = repositories.slice(0);
     this.name = name;
   }
 
@@ -35,15 +36,5 @@ export class User {
    */
   public getRepositories(): Repository[] {
     return this.repositories;
-  }
-
-  /**
-   * According to the github token, return the user information of that token owner
-   * @returns the Promise of the owner
-   */
-  public static async getMe(): Promise<any> {
-    const userDate: any = await githubApi.get("/user");
-    if (!userDate.data) return userDate;
-    return new User(userDate.data.node_id, userDate.data.login);
   }
 }
