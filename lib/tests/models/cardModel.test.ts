@@ -7,6 +7,8 @@ describe("Test the construct of the Card class", () => {
       "test title",
       "test body",
       "open",
+      "test owner",
+      "test repos",
       "test note"
     );
     expect(cardObj).toMatchObject({
@@ -14,7 +16,9 @@ describe("Test the construct of the Card class", () => {
       title: "test title",
       body: "test body",
       state: "open",
-      note: "test note"
+      note: "test note",
+      owner: "test owner",
+      repos: "test repos"
     });
   });
 });

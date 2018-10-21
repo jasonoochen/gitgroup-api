@@ -1,4 +1,4 @@
-import { githubApiPreview } from "remoteConnection/github/githubAPI";
+import { githubApiPreview } from "../remoteConnection/github/githubAPI";
 
 export class Issue {
   private id: string;
