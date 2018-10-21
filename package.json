@@ -21,7 +21,7 @@
     "ts-jest": "^23.10.4"
   },
   "scripts": {
-    "test": "jest --verbose false",
+    "test": "jest --verbose",
     "build": "tsc",
     "dev": "ts-node ./lib/server.ts",
     "start": "nodemon ./dist/server.js",
