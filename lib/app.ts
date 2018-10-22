@@ -4,6 +4,7 @@ import * as bodyParser from "body-parser";
 import * as mongoose from "mongoose";
 import * as config from "config";
 import { MainRoute } from "./routes/mainRoute";
+import { Project } from "./models/projectModel";
 
 class App {
   public app: express.Application;
