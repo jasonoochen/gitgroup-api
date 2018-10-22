@@ -43,3 +43,9 @@ The following commands are just required when you distribute the app
 npm run build
 npm run start
 ```
+
+## API list
+
+### Repository
+
+- _/repos_ - get all repositories of the owner

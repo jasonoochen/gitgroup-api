@@ -16,21 +16,20 @@ export class Issue {
    * @param state the state of the issue: open or close
    */
   public constructor(
-    title: string,
-    body: string,
-    state: string,
-    owner: string,
-    repos: string,
-    id?: string
+    id?: string,
+    title?: string,
+    body?: string,
+    owner?: string,
+    repos?: string,
+    state?: string
   ) {
-    if (id) this.id = id;
+    this.id = id;
     this.title = title;
     this.body = body;
     this.owner = owner;
     this.repos = repos;
-    if (state !== "close" && state !== "open")
+    if (state && state !== "close" && state !== "open")
       throw new RangeError("State must be 'close' or 'open'.");
-
     this.state = state;
   }
 
@@ -107,21 +106,22 @@ export class Issue {
   public static async getAllIssues(
     username: string,
     reposName: string
-  ): Promise<any> {
+  ): Promise<any[]> {
     const issuesData: any = await githubApiPreview.get(
       `/repos/${username}/${reposName}/issues`
     );
     if (!issuesData.data) return issuesData;
     let issues: Issue[] = [];
-    for (let issue of issuesData) {
-      const issueData = issue.data;
+    for (let data of issuesData.data) {
+      const reposUrl: string = data.repository_url;
+      const repos: string = reposUrl.split("/").pop();
       const issueObj = new Issue(
-        issueData.title,
-        issueData.body,
-        issueData.string,
-        issueData.user.login,
-        issueData.repository.name,
-        issueData.node_id
+        data.node_id,
+        data.title,
+        data.body,
+        data.user.login,
+        repos,
+        data.state
       );
       issues.push(issueObj);
     }

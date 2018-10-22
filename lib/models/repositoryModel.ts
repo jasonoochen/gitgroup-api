@@ -1,30 +1,32 @@
 import { Issue } from "./issueModel";
 import { Kanban } from "./kanbanModel";
 import { Collaborator } from "./collaboratorModel";
-import { githubApi } from "remoteConnection/github/githubAPI";
+import { githubApi } from "../remoteConnection/github/githubAPI";
 
 export class Repository {
   private id: string;
   private name: string;
   private owner: string; // owner name
   private description: string;
-  private issues: Issue[];
+  private issues: Issue[]; // can get it using 'owner' and 'name' /repos/{owner}/{name}/issues
   private kanbans: Kanban[];
   private collaborators: Collaborator[];
   constructor(
-    name: string,
-    owner: string,
-    issues: Issue[],
-    kanbans: Kanban[],
-    collaborators: Collaborator[],
-    id?: string
+    id?: string,
+    name?: string,
+    owner?: string,
+    description?: string,
+    issues?: Issue[],
+    kanbans?: Kanban[],
+    collaborators?: Collaborator[]
   ) {
-    if (id) this.id = id;
+    this.id = id;
     this.name = name;
     this.owner = owner;
-    this.issues = issues.slice(0);
-    this.kanbans = kanbans.slice(0);
-    this.collaborators = collaborators.slice(0);
+    this.description = description;
+    if (issues) this.issues = issues.slice(0);
+    if (kanbans) this.kanbans = kanbans.slice(0);
+    if (collaborators) this.collaborators = collaborators.slice(0);
   }
 
   public getId(): string {
@@ -60,6 +62,29 @@ export class Repository {
   public getCollaborators(): Collaborator[] {
     const collaborators: Collaborator[] = this.collaborators.slice(0);
     return collaborators;
+  }
+
+  public static async getAll(): Promise<any> {
+    let reposDatas: any;
+    let reposes: Repository[] = [];
+    reposDatas = await githubApi.get("/user/repos", {
+      params: {
+        type: "owner"
+      }
+    });
+    for (let data of reposDatas.data) {
+      const issues = await Issue.getAllIssues(data.owner.login, data.name);
+      reposes.push(
+        new Repository(
+          data.node_id,
+          data.name,
+          data.owner.login,
+          data.description,
+          issues
+        )
+      );
+    }
+    return reposes;
   }
 
   public async save(): Promise<any> {
