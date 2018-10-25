@@ -14,12 +14,10 @@ const githubApiPreview = axios.create({
   }
 });
 
-const githubAuthApi = axios.create({
-  baseURL: "https://github.com/login/oauth/authorize"
-});
-
 const githubGetTokenApi = axios.create({
   baseURL: "https://github.com/login/oauth/access_token"
 });
 
-export { githubApi, githubApiPreview, githubAuthApi, githubGetTokenApi };
+const githubAuthUrl = "https://github.com/login/oauth/authorize";
+
+export { githubApi, githubApiPreview, githubAuthUrl, githubGetTokenApi };

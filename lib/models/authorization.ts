@@ -1,6 +1,6 @@
 import * as config from "config";
 import {
-  githubAuthApi,
+  githubAuthUrl,
   githubGetTokenApi
 } from "../remoteConnection/github/githubAPI";
 import { AxiosResponse } from "axios";
@@ -8,19 +8,20 @@ import { AxiosResponse } from "axios";
 export class Authorization {
   private client_id: string;
   private client_secret: string;
+  private githubAuthUrl: string;
 
   constructor() {
     this.client_id = config.get("github.client_id");
     this.client_secret = config.get("github.client_secret");
+    this.githubAuthUrl = githubAuthUrl;
   }
 
-  public async requestId(): Promise<AxiosResponse<any>> {
-    const gitHubRequestPage = await githubAuthApi.get("/", {
-      params: {
-        client_id: this.client_id
-      }
-    });
-    return gitHubRequestPage;
+  public getClientId(): string {
+    return this.client_id;
+  }
+
+  public getGithubAuthUrl(): string {
+    return this.githubAuthUrl;
   }
 
   public getToken(code: string) {
