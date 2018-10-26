@@ -9,22 +9,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const repositoryModel_1 = require("./../models/repositoryModel");
 const authorization_1 = require("./../models/authorization");
-class RepositoryRoutes {
+const userModel_1 = require("./../models/userModel");
+class UserRoutes {
     constructor() {
         this.router = express_1.Router();
         /**
-         * GET /repos - get all repository
+         * GET /user
          */
         this.router.get("/", authorization_1.Authorization.authenticate, (req, res) => __awaiter(this, void 0, void 0, function* () {
-            const reposes = yield repositoryModel_1.Repository.getAll(req);
-            res.status(200).send(reposes);
+            const user = yield userModel_1.User.getUser(req);
+            res.status(200).send(user);
         }));
     }
+    /**
+     * Bound all the routes
+     * @param app express application
+     */
     routes(app) {
-        app.use("/repos", this.router);
+        app.use("/user", this.router);
     }
 }
-exports.RepositoryRoutes = RepositoryRoutes;
-//# sourceMappingURL=repositoryRoutes.js.map
+exports.UserRoutes = UserRoutes;
+//# sourceMappingURL=userRoutes.js.map

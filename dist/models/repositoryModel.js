@@ -50,11 +50,17 @@ class Repository {
         const collaborators = this.collaborators.slice(0);
         return collaborators;
     }
-    static getAll() {
+    /**
+     * Get all the repositories of owener from Github
+     * @param {Request} req - the user request including the auth header
+     * @returns {Promise<any>} if success, return Promise<Repository> , else, return Promise<any>
+     */
+    static getAll(req) {
         return __awaiter(this, void 0, void 0, function* () {
             let reposDatas;
             let reposes = [];
-            reposDatas = yield githubAPI_1.githubApi.get("/user/repos", {
+            const token = req.headers.authorization;
+            reposDatas = yield githubAPI_1.github(token).get("/user/repos", {
                 params: {
                     type: "owner"
                 }
@@ -66,7 +72,7 @@ class Repository {
             return reposes;
         });
     }
-    save() {
+    save(token) {
         return __awaiter(this, void 0, void 0, function* () {
             const post = {
                 name: this.name,
@@ -74,7 +80,7 @@ class Repository {
             };
             let result;
             try {
-                result = yield githubAPI_1.githubApi.post("/user/repos", post);
+                result = yield githubAPI_1.github(token).post("/user/repos", post);
                 this.owner = result.data.owner.login;
                 this.id = result.data.node_id;
                 // save issues
