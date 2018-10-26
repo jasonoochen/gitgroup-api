@@ -17,14 +17,13 @@ class Issue {
      * @param body the text body of the issue
      * @param state the state of the issue: open or close
      */
-    constructor(title, body, state, owner, repos, id) {
-        if (id)
-            this.id = id;
+    constructor(id, title, body, owner, repos, state) {
+        this.id = id;
         this.title = title;
         this.body = body;
         this.owner = owner;
         this.repos = repos;
-        if (state !== "close" && state !== "open")
+        if (state && state !== "close" && state !== "open")
             throw new RangeError("State must be 'close' or 'open'.");
         this.state = state;
     }
@@ -95,9 +94,10 @@ class Issue {
             if (!issuesData.data)
                 return issuesData;
             let issues = [];
-            for (let issue of issuesData) {
-                const issueData = issue.data;
-                const issueObj = new Issue(issueData.title, issueData.body, issueData.string, issueData.user.login, issueData.repository.name, issueData.node_id);
+            for (let data of issuesData.data) {
+                const reposUrl = data.repository_url;
+                const repos = reposUrl.split("/").pop();
+                const issueObj = new Issue(data.node_id, data.title, data.body, data.user.login, repos, data.state);
                 issues.push(issueObj);
             }
             return issues;

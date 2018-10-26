@@ -1,7 +1,8 @@
+import { Request } from "express";
 import { Issue } from "./issueModel";
 import { Kanban } from "./kanbanModel";
 import { Collaborator } from "./collaboratorModel";
-import { githubApi } from "../remoteConnection/github/githubAPI";
+import { github } from "../remoteConnection/github/githubAPI";
 
 export class Repository {
   private id: string;
@@ -64,10 +65,16 @@ export class Repository {
     return collaborators;
   }
 
-  public static async getAll(): Promise<any> {
+  /**
+   * Get all the repositories of owener from Github
+   * @param {Request} req - the user request including the auth header
+   * @returns {Promise<any>} if success, return Promise<Repository> , else, return Promise<any>
+   */
+  public static async getAll(req: Request): Promise<any> {
     let reposDatas: any;
     let reposes: Repository[] = [];
-    reposDatas = await githubApi.get("/user/repos", {
+    const token = req.headers.authorization;
+    reposDatas = await github(token).get("/user/repos", {
       params: {
         type: "owner"
       }
@@ -87,14 +94,14 @@ export class Repository {
     return reposes;
   }
 
-  public async save(): Promise<any> {
+  public async save(token: string): Promise<any> {
     const post: any = {
       name: this.name,
       description: this.description
     };
     let result: any;
     try {
-      result = await githubApi.post("/user/repos", post);
+      result = await github(token).post("/user/repos", post);
       this.owner = result.data.owner.login;
       this.id = result.data.node_id;
       // save issues

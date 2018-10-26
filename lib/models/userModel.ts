@@ -1,6 +1,7 @@
+import { Request } from "express";
 import * as config from "config";
 import { Repository } from "./repositoryModel";
-import { githubApi } from "../remoteConnection/github/githubAPI";
+import { github } from "../remoteConnection/github/githubAPI";
 
 /**
  * User Class
@@ -11,10 +12,10 @@ export class User {
   private name: string;
   private repositories: Repository[];
 
-  constructor(name: string, id?: string, repositories?: Repository[]) {
+  constructor(id?: string, name?: string, repositories?: Repository[]) {
     if (id) this.id = id;
+    if (name) this.name = name;
     if (repositories) this.repositories = repositories.slice(0);
-    this.name = name;
   }
 
   /**
@@ -36,5 +37,13 @@ export class User {
    */
   public getRepositories(): Repository[] {
     return this.repositories;
+  }
+
+  public static async getUser(req: Request): Promise<User> {
+    const token = req.headers.authorization;
+    const githubRes = await github(token).get("/user");
+    const data = githubRes.data;
+    const user = new User(data.node_id, data.login);
+    return user;
   }
 }

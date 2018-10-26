@@ -15,4 +15,10 @@ const githubApiPreview = axios_1.default.create({
     }
 });
 exports.githubApiPreview = githubApiPreview;
+const githubGetTokenApi = axios_1.default.create({
+    baseURL: "https://github.com/login/oauth/access_token"
+});
+exports.githubGetTokenApi = githubGetTokenApi;
+const githubAuthUrl = "https://github.com/login/oauth/authorize";
+exports.githubAuthUrl = githubAuthUrl;
 //# sourceMappingURL=githubAPI.js.map

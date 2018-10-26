@@ -1,5 +1,6 @@
 import { Router, Request, Response, Application } from "express";
 import * as url from "url";
+import * as config from "config";
 import { Authorization } from "./../models/authorization";
 
 export class AuthorizationRoutes {
@@ -7,20 +8,20 @@ export class AuthorizationRoutes {
 
   constructor() {
     this.router = Router();
-
     this.router.use((req, res, next) => {
-      res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+      res.header("Access-Control-Allow-Origin", "*");
       res.header(
         "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept"
+        "Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-GitHub-OTP, X-Requested-With"
       );
+      res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS");
       next();
     });
 
     //[method: get, url: /user/auth] - used to get the github authorization request page
     this.router.get("/", async (req: Request, res: Response) => {
       const auth: Authorization = new Authorization();
-      return res.redirect(
+      return res.status(200).send(
         url.format({
           pathname: auth.getGithubAuthUrl(),
           query: {
@@ -30,7 +31,12 @@ export class AuthorizationRoutes {
       );
     });
 
-    this.router.post("/callback", (req: Request, res: Response) => {});
+    this.router.get("/callback", async (req: Request, res: Response) => {
+      const code: string = req.param("code");
+      const auth: Authorization = new Authorization();
+      const accessToken = await auth.getToken(code);
+      return res.redirect(config.get("home_page_url") + "?" + accessToken.data);
+    });
   }
 
   public routes(app: Application): void {
