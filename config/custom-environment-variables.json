@@ -1,0 +1,10 @@
+{
+  "github": {
+    "token": "github_token",
+    "client_secret": "github_client_secret"
+  },
+  "mongo": {
+    "user": "mongo_user",
+    "password": "mongo_password"
+  }
+}
