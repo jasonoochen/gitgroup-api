@@ -1,18 +1,27 @@
 // /lib/routes/crmRoutes.ts
-import { Request, Response, Application } from "express";
+import { Request, Response, Application, Router } from "express";
 import { ProjectController } from "./../controllers/projectController";
+import { Authorization } from './../models/authorization';
+import { User } from './../models/userModel';
 
 export class ProjectRoutes {
+  private router: Router;
   public projectController: ProjectController = new ProjectController();
 
-  public routes(app: Application): void {
-    app.route("/").get((req: Request, res: Response) => {
-      res.status(200).send({
-        message: "GET request successfulll!!!!"
-      });
-    });
+  constructor() {
+    this.router = Router();
 
-    app.route("/project").post(this.projectController.addNewProject);
-    app.route("/project").get(this.projectController.getAllProjects);
+    this.router.post(
+      '/new',
+      Authorization.authenticate,
+      async (req: Request, res:Response) => {
+        const user: User = await User.getUser(req);
+         
+      }
+    )
+  }
+
+  public routes(app: Application): void {
+    app.use('/project', this.router);
   }
 }

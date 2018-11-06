@@ -1,7 +1,26 @@
 import { Request } from "express";
-import * as config from "config";
+import * as mongoose from "mongoose";
 import { Repository } from "./repositoryModel";
+import { ProjectSchema, Project } from "./projectModel";
 import { github } from "../remoteConnection/github/githubAPI";
+
+/**
+ * MongoDB related data
+ */
+const Schema = mongoose.Schema;
+
+export const userSchema = new Schema({
+  node_id: {
+    type: String,
+    required: true
+  },
+  name: {
+    type: String,
+    required: true
+  },
+  projects: [ProjectSchema]
+});
+export const UserMongoModel = mongoose.model("User", userSchema);
 
 /**
  * User Class
@@ -43,7 +62,8 @@ export class User {
     const token = req.headers.authorization;
     const githubRes = await github(token).get("/user");
     const data = githubRes.data;
-    const user = new User(data.node_id, data.login);
+    const projects = await Project.getProjects(req);
+    const user = new User(data.node_id, data.login, projects);
     return user;
   }
 }
