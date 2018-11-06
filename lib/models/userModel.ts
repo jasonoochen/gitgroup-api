@@ -62,8 +62,7 @@ export class User {
     const token = req.headers.authorization;
     const githubRes = await github(token).get("/user");
     const data = githubRes.data;
-    const projects = await Project.getProjects(req);
-    const user = new User(data.node_id, data.login, projects);
+    const user = new User(data.node_id, data.login);
     return user;
   }
 }
