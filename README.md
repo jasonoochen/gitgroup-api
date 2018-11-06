@@ -49,3 +49,8 @@ npm run start
 ### Repository
 
 - _/repos_ - get all repositories of the owner
+
+### Project
+
+- _POST /project/new_ - create a new project to owner
+  - body: {name: your project name}
