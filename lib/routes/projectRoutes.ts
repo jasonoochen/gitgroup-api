@@ -18,7 +18,7 @@ export class ProjectRoutes {
           req.body.name,
           req.body.owner_id
         );
-        const savedInfo = await project.saveToMongo();
+        const savedInfo = await project.saveToMongo(req);
         res.status(200).send(savedInfo);
       }
     );

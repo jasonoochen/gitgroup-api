@@ -47,6 +47,18 @@ export class User {
     return user;
   }
 
+  // public static async saveUserToMongo(req: Request): Promise<any> {
+  //   const token = req.headers.authorization;
+  //   const githubRes = await github(token).get("/user");
+  //   const data = githubRes.data;
+  //   const userMongo = new User.UserMongoModel({
+  //     node_id: data.node_id,
+  //     name: data.login
+  //   });
+  //   const result = await userMongo.save();
+  //   return result;
+  // }
+
   /**
    * MongoDB related data
    */

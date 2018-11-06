@@ -48,8 +48,7 @@ export class Project {
     const token = req.headers.authorization;
     const userGitRes = await github(token).get("/user");
     const userGitData = userGitRes.data;
-    const userMongo = new User.UserMongoModel();
-    const userMongoData = await userMongo.findOne({
+    const userMongoData = await User.UserMongoModel.findOne({
       node_id: userGitData.node_id
     });
     if (!userMongoData) return [];
@@ -66,15 +65,26 @@ export class Project {
     return result;
   }
 
-  public async saveToMongo() {
+  public async saveToMongo(req: Request) {
+    const user: User = await User.getUser(req);
+    this.owner_id = user.getId();
     const project: Object = {
       name: this.name,
       owner_id: this.owner_id
     };
-    // get user from mongo db
-    const userMongo = new User.UserMongoModel();
 
-    const userMongoData = await userMongo.findOne({ node_id: this.owner_id });
+    // get user from mongo db
+    let userMongoData = await User.UserMongoModel.findOne({
+      node_id: this.owner_id
+    });
+
+    if (!userMongoData) {
+      const userMongo = new User.UserMongoModel({
+        node_id: this.owner_id,
+        name: user.getName()
+      });
+      userMongoData = await userMongo.save();
+    }
 
     if (!userMongoData.projects) {
       userMongoData.projects = [project];
@@ -84,6 +94,7 @@ export class Project {
 
     const newUserMongo = new User.UserMongoModel(userMongoData);
     const result = await newUserMongo.save();
+    return result;
   }
 
   public static ProjectSchema = new mongoose.Schema({
