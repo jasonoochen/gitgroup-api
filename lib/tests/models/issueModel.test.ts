@@ -4,32 +4,32 @@ let testIssue: Issue;
 
 describe("Test the constructor of the Issue.", () => {
   it("should create a new Issue object when the input is correct.", () => {
-    const issueObj: Issue = new Issue(
+    const issueObj: Issue = new Issue(       /*adjust orders to match constructor*/
+      "1",
       "test title",
       "test body",
-      "open",
       "test owner",
       "test repos",
-      "1"
+      "open"
     );
-    expect(issueObj).toMatchObject({
+    expect(issueObj).toMatchObject({        /*adjust orders to match constructor*/
       id: "1",
       title: "test title",
       body: "test body",
-      state: "open",
       owner: "test owner",
-      repos: "test repos"
+      repos: "test repos",
+      state: "open"
     });
   });
   it("should throw a RangeError when the input state is neither 'open' nor 'close'", () => {
-    const constructorWithWrongInput = () => {
+    const constructorWithWrongInput = () => {   /*adjust orders to match constructor*/
       return new Issue(
+        "1",
         "test title",
         "test body",
-        "NorOpenClose",
         "test owner",
         "test repos",
-        "1"
+        "Noropenclose"
       );
     };
     expect(constructorWithWrongInput).toThrow(RangeError);
@@ -38,12 +38,12 @@ describe("Test the constructor of the Issue.", () => {
 
 beforeEach(() => {
   testIssue = new Issue(
+    "1",
     "test title",
     "test body",
-    "open",
     "test owner",
     "test repos",
-    "1"
+    "open"
   );
 });
 
