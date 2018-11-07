@@ -9,12 +9,12 @@ export class Card extends Issue {
     id: string,
     title: string,
     body: string,
-    state: string,
     owner: string,
     repos: string,
+    state: string,
     note: string
   ) {
-    super(title, body, state, owner, repos, id);
+    super(id, title, body, owner, repos, state);
     this.note = note;
   }
 

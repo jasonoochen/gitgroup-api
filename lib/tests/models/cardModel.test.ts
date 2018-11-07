@@ -6,19 +6,19 @@ describe("Test the construct of the Card class", () => {
       "1",
       "test title",
       "test body",
-      "open",
       "test owner",
       "test repos",
+      "open",
       "test note"
     );
     expect(cardObj).toMatchObject({
       id: "1",
       title: "test title",
       body: "test body",
-      state: "open",
-      note: "test note",
       owner: "test owner",
-      repos: "test repos"
+      repos: "test repos",
+      state: "open",
+      note: "test note"
     });
   });
 });
