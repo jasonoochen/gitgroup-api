@@ -1,4 +1,4 @@
-import { Project, ProjectMongoModel } from "../../models/projectModel";
+/*import { Project, ProjectMongoModel } from "../../models/projectModel";
 
 describe("test saveToMongo() function", () => {
   it("should save the project to the mongodb and set its id", () => {
@@ -17,4 +17,4 @@ describe("test saveToMongo() function", () => {
     projectObj.saveToMongo();
     expect(typeof projectObj.getId()).toEqual("string");
   });
-});
+});*/
