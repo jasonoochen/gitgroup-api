@@ -1,6 +1,6 @@
 import { Application, Request, Response, Router } from "express";
 import { Authorization } from "./../models/authorization";
-import { User } from "./../models/userModel";
+import { Owner } from "./../models/ownerModel";
 
 export class UserRoutes {
   private router: Router;
@@ -15,8 +15,8 @@ export class UserRoutes {
       "/",
       Authorization.authenticate,
       async (req: Request, res: Response) => {
-        const user = await User.getUser(req);
-        res.status(200).send(user);
+        const owner = await Owner.getOwner(req);
+        res.status(200).send(owner);
       }
     );
   }
