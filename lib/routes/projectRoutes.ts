@@ -16,7 +16,8 @@ export class ProjectRoutes {
         const project = new Project(
           undefined,
           req.body.name,
-          req.body.owner_id
+          req.body.owner_id,
+          req.body.description
         );
         const savedInfo = await project.saveToMongo(req);
         res.status(200).send(savedInfo);

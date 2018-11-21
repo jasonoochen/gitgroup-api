@@ -11,6 +11,7 @@ export class Project {
   private id: string;
   private name: string;
   private owner_id: string;
+  private description: string;
   private repositories: Repository[];
   private collaborators: Collaborator[];
 
@@ -18,12 +19,14 @@ export class Project {
     id?: string,
     name?: string,
     owner_id?: string,
+    description?: string,
     repositories?: Repository[],
     collaborators?: Collaborator[]
   ) {
     if (id) this.id = id;
     if (name) this.name = name;
     if (owner_id) this.owner_id = owner_id;
+    if (description) this.description = description;
     if (repositories) this.repositories = repositories.slice(0);
     if (collaborators) this.collaborators = collaborators.slice(0);
   }
@@ -34,6 +37,14 @@ export class Project {
 
   public getName(): string {
     return this.name;
+  }
+
+  public getDescription(): string {
+    return this.description;
+  }
+
+  public setDescription(description: string): void {
+    this.description = description;
   }
 
   public getRepositories(): Repository[] {
@@ -70,7 +81,8 @@ export class Project {
     this.owner_id = user.getId();
     const project: Object = {
       name: this.name,
-      owner_id: this.owner_id
+      owner_id: this.owner_id,
+      description: this.description
     };
 
     // get user from mongo db
@@ -105,6 +117,9 @@ export class Project {
     owner_id: {
       type: String,
       required: true
+    },
+    description: {
+      type: String
     }
   });
 }
