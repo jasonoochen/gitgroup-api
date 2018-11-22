@@ -63,6 +63,29 @@ export class User {
    * MongoDB related data
    */
 
+  private static RepositorySchema = new mongoose.Schema({
+    repository_id: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    owner_id: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String,
+      required: true
+    },
+    url: {
+      type: String,
+      required: true
+    }
+  });
+
   private static ProjectSchema = new mongoose.Schema({
     name: {
       type: String,
@@ -71,7 +94,8 @@ export class User {
     owner_id: {
       type: String,
       required: true
-    }
+    },
+    repositories: [User.RepositorySchema]
   });
 
   public static userSchema = new mongoose.Schema({
@@ -83,7 +107,8 @@ export class User {
       type: String,
       required: true
     },
-    projects: [User.ProjectSchema]
+    projects: [User.ProjectSchema],
+    repository: [User.RepositorySchema]
   });
   public static UserMongoModel = mongoose.model("User", User.userSchema);
 }

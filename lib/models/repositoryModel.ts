@@ -6,9 +6,11 @@ import { github } from "../remoteConnection/github/githubAPI";
 
 export class Repository {
   private id: string;
-  private name: string;
-  private owner: string; // owner name
-  private description: string;
+  private name: string; // the name of the repository
+  private owner_id: string; // owner id
+  private description: string; // the description of the repository
+  private _url: string; // the github url of the repository
+
   private issues: Issue[]; // can get it using 'owner' and 'name' /repos/{owner}/{name}/issues
   private kanbans: Kanban[];
   private collaborators: Collaborator[];
@@ -17,19 +19,27 @@ export class Repository {
     name?: string,
     owner?: string,
     description?: string,
+    url?: string,
     issues?: Issue[],
     kanbans?: Kanban[],
     collaborators?: Collaborator[]
   ) {
     this.id = id;
     this.name = name;
-    this.owner = owner;
+    this.owner_id = owner;
     this.description = description;
+    this._url = url;
     if (issues) this.issues = issues.slice(0);
     if (kanbans) this.kanbans = kanbans.slice(0);
     if (collaborators) this.collaborators = collaborators.slice(0);
   }
 
+  public get url(): string {
+    return this._url;
+  }
+  public set url(value: string) {
+    this._url = value;
+  }
   public getId(): string {
     return this.id;
   }
@@ -39,7 +49,7 @@ export class Repository {
   }
 
   public getOwner(): string {
-    return this.owner;
+    return this.owner_id;
   }
 
   public getDescription(): string {
@@ -70,7 +80,7 @@ export class Repository {
    * @param {Request} req - the user request including the auth header
    * @returns {Promise<any>} if success, return Promise<Repository> , else, return Promise<any>
    */
-  public static async getAll(req: Request): Promise<any> {
+  public static async getAll(req: Request): Promise<Repository[]> {
     let reposDatas: any;
     let reposes: Repository[] = [];
     const token = req.headers.authorization;
@@ -87,6 +97,7 @@ export class Repository {
           data.name,
           data.owner.login,
           data.description,
+          data.html_url,
           issues
         )
       );
@@ -102,7 +113,7 @@ export class Repository {
     let result: any;
     try {
       result = await github(token).post("/user/repos", post);
-      this.owner = result.data.owner.login;
+      this.owner_id = result.data.owner.login;
       this.id = result.data.node_id;
       // save issues
       // save kanbans

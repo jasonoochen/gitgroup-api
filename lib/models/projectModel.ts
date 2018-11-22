@@ -82,7 +82,8 @@ export class Project {
     const project: Object = {
       name: this.name,
       owner_id: this.owner_id,
-      description: this.description
+      description: this.description,
+      repositories: this.repositories
     };
 
     // get user from mongo db
