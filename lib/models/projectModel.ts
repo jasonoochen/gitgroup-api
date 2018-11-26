@@ -55,6 +55,67 @@ export class Project {
     return this.collaborators;
   }
 
+  private static RepositorySchema = new mongoose.Schema({
+    repository_id: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    owner_id: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String,
+      required: true
+    },
+    _url: {
+      type: String,
+      required: true
+    }
+  });
+
+  public static ProjectSchema = new mongoose.Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    owner_id: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String
+    },
+    repositories: [Project.RepositorySchema]
+  });
+
+  public static ProjectMongoModel = mongoose.model(
+    "projects",
+    Project.ProjectSchema
+  );
+
+  /*************************************************************************
+   * Given a project ID, get all the names of repositories of that project.
+   * @param projectId
+   * @returns {string[]} - the list of the names of the repositories
+   */
+  public static async getReposNamesOfProject(projectId: string) {
+    const projectMongoData = await Project.ProjectMongoModel.findById(
+      projectId
+    );
+    if (!projectMongoData) return [];
+    if (!projectMongoData.repositories) return [];
+    let result: string[] = [];
+    for (const repos of projectMongoData.repositories) {
+      result.push(repos.name);
+    }
+    return result;
+  }
+
   public static async getProjects(req: Request): Promise<Project[]> {
     const token = req.headers.authorization;
     const userGitRes = await github(token).get("/user");
@@ -79,12 +140,17 @@ export class Project {
   public async saveToMongo(req: Request) {
     const user: User = await User.getUser(req);
     this.owner_id = user.getId();
-    const project: Object = {
+    let project: Object = {
       name: this.name,
       owner_id: this.owner_id,
       description: this.description,
       repositories: this.repositories
     };
+
+    const projectMongo = new Project.ProjectMongoModel(project);
+    const savedProject = await projectMongo.save();
+    project["_id"] = savedProject._id;
+    this.id = savedProject._id;
 
     // get user from mongo db
     let userMongoData = await User.UserMongoModel.findOne({
@@ -107,20 +173,7 @@ export class Project {
 
     const newUserMongo = new User.UserMongoModel(userMongoData);
     const result = await newUserMongo.save();
+
     return result;
   }
-
-  public static ProjectSchema = new mongoose.Schema({
-    name: {
-      type: String,
-      required: true
-    },
-    owner_id: {
-      type: String,
-      required: true
-    },
-    description: {
-      type: String
-    }
-  });
 }

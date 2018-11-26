@@ -80,7 +80,7 @@ export class User {
       type: String,
       required: true
     },
-    url: {
+    _url: {
       type: String,
       required: true
     }

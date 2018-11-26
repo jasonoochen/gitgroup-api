@@ -3,6 +3,7 @@ import { ProjectRoutes } from "./projectRoutes";
 import { RepositoryRoutes } from "./repositoryRoutes";
 import { AuthorizationRoutes } from "./authorizationRoutes";
 import { UserRoutes } from "./userRoutes";
+import { IssueRoutes } from "./issueRoutes";
 
 export class MainRoute {
   public routes(app: Application): void {
@@ -19,5 +20,6 @@ export class MainRoute {
     new ProjectRoutes().routes(app);
     new RepositoryRoutes().routes(app);
     new AuthorizationRoutes().routes(app);
+    new IssueRoutes().routes(app);
   }
 }

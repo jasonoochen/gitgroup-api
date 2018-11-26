@@ -5,7 +5,7 @@ import { Collaborator } from "./collaboratorModel";
 import { github } from "../remoteConnection/github/githubAPI";
 
 export class Repository {
-  private id: string;
+  private repository_id: string;
   private name: string; // the name of the repository
   private owner_id: string; // owner id
   private description: string; // the description of the repository
@@ -15,7 +15,7 @@ export class Repository {
   private kanbans: Kanban[];
   private collaborators: Collaborator[];
   constructor(
-    id?: string,
+    repository_id?: string,
     name?: string,
     owner?: string,
     description?: string,
@@ -24,7 +24,7 @@ export class Repository {
     kanbans?: Kanban[],
     collaborators?: Collaborator[]
   ) {
-    this.id = id;
+    this.repository_id = repository_id;
     this.name = name;
     this.owner_id = owner;
     this.description = description;
@@ -41,7 +41,7 @@ export class Repository {
     this._url = value;
   }
   public getId(): string {
-    return this.id;
+    return this.repository_id;
   }
 
   public getName(): string {
@@ -114,7 +114,7 @@ export class Repository {
     try {
       result = await github(token).post("/user/repos", post);
       this.owner_id = result.data.owner.login;
-      this.id = result.data.node_id;
+      this.repository_id = result.data.node_id;
       // save issues
       // save kanbans
       // save collaborators
