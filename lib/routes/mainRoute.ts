@@ -4,6 +4,7 @@ import { RepositoryRoutes } from "./repositoryRoutes";
 import { AuthorizationRoutes } from "./authorizationRoutes";
 import { UserRoutes } from "./userRoutes";
 import { IssueRoutes } from "./issueRoutes";
+import { CardRoutes } from "./cardRoutes";
 
 export class MainRoute {
   public routes(app: Application): void {
@@ -21,5 +22,6 @@ export class MainRoute {
     new RepositoryRoutes().routes(app);
     new AuthorizationRoutes().routes(app);
     new IssueRoutes().routes(app);
+    new CardRoutes().routes(app);
   }
 }

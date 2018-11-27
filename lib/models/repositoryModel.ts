@@ -3,6 +3,7 @@ import { Issue } from "./issueModel";
 import { Kanban } from "./kanbanModel";
 import { Collaborator } from "./collaboratorModel";
 import { github } from "../remoteConnection/github/githubAPI";
+import * as mongoose from "mongoose";
 
 export class Repository {
   private repository_id: string;
@@ -74,13 +75,68 @@ export class Repository {
     const collaborators: Collaborator[] = this.collaborators.slice(0);
     return collaborators;
   }
+  public static RepositorySchema = new mongoose.Schema({
+    repository_id: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    owner_id: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String
+    },
+    _url: {
+      type: String,
+      required: true
+    }
+  });
 
+  public static RepositoryMongoModel = mongoose.model(
+    "repositories",
+    Repository.RepositorySchema
+  );
   /**
    * Get all the repositories of owener from Github
    * @param {Request} req - the user request including the auth header
    * @returns {Promise<any>} if success, return Promise<Repository> , else, return Promise<any>
    */
   public static async getAll(req: Request): Promise<Repository[]> {
+    let reposDatas: any;
+    let reposes: Repository[] = [];
+    const token = req.headers.authorization;
+    reposDatas = await github(token).get("/user/repos", {
+      params: {
+        type: "owner"
+      }
+    });
+    for (let data of reposDatas.data) {
+      const issues = await Issue.getAllIssues(data.owner.login, data.name);
+      reposes.push(
+        new Repository(
+          data.node_id,
+          data.name,
+          data.owner.login,
+          data.description,
+          data.html_url,
+          issues
+        )
+      );
+    }
+    return reposes;
+  }
+
+  /**
+   * Get all the repositories of owener from Github
+   * @param {Request} req - the user request including the auth header
+   * @returns {Promise<any>} if success, return Promise<Repository> , else, return Promise<any>
+   */
+  public static async getReposOfOwner(req: Request): Promise<Repository[]> {
     let reposDatas: any;
     let reposes: Repository[] = [];
     const token = req.headers.authorization;

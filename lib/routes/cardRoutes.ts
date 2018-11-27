@@ -2,8 +2,9 @@ import { Request, Response, Application, Router } from "express";
 import { Authorization } from "./../models/authorization";
 import { Issue } from "../models/issueModel";
 import { Project } from "../models/projectModel";
+import { Card } from "../models/cardModel";
 
-export class IssueRoutes {
+export class CardRoutes {
   private router: Router;
 
   constructor() {
@@ -18,7 +19,7 @@ export class IssueRoutes {
     });
 
     this.router.get(
-      "/project_issues/:username/:projectId",
+      "/project_cards/:username/:projectId",
       async (req: Request, res: Response) => {
         const reposNames: string[] = await Project.getReposNamesOfProject(
           req.params.projectId
@@ -37,6 +38,6 @@ export class IssueRoutes {
   }
 
   public routes(app: Application): void {
-    app.use("/issues", this.router);
+    app.use("/cards", this.router);
   }
 }

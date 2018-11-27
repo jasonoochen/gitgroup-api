@@ -1,7 +1,7 @@
 import * as mongoose from "mongoose";
 import { Request } from "express";
-import { Repository } from "./repositoryModel";
 import { github } from "../remoteConnection/github/githubAPI";
+import { Repository } from "./repositoryModel";
 
 /**
  * User Class
@@ -39,6 +39,39 @@ export class User {
     return this.repositories;
   }
 
+  /**
+   * MongoDB related data
+   */
+  private static ProjectSchema = new mongoose.Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    owner_id: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String
+    },
+    repositories: [Repository.RepositoryMongoModel.schema]
+  });
+
+  public static userSchema = new mongoose.Schema({
+    node_id: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    projects: [User.ProjectSchema],
+    repository: [Repository.RepositoryMongoModel.schema]
+  });
+
+  public static UserMongoModel = mongoose.model("users", User.userSchema);
+
   public static async getUser(req: Request): Promise<User> {
     const token = req.headers.authorization;
     const githubRes = await github(token).get("/user");
@@ -58,57 +91,4 @@ export class User {
   //   const result = await userMongo.save();
   //   return result;
   // }
-
-  /**
-   * MongoDB related data
-   */
-
-  private static RepositorySchema = new mongoose.Schema({
-    repository_id: {
-      type: String,
-      required: true
-    },
-    name: {
-      type: String,
-      required: true
-    },
-    owner_id: {
-      type: String,
-      required: true
-    },
-    description: {
-      type: String,
-      required: true
-    },
-    _url: {
-      type: String,
-      required: true
-    }
-  });
-
-  private static ProjectSchema = new mongoose.Schema({
-    name: {
-      type: String,
-      required: true
-    },
-    owner_id: {
-      type: String,
-      required: true
-    },
-    repositories: [User.RepositorySchema]
-  });
-
-  public static userSchema = new mongoose.Schema({
-    node_id: {
-      type: String,
-      required: true
-    },
-    name: {
-      type: String,
-      required: true
-    },
-    projects: [User.ProjectSchema],
-    repository: [User.RepositorySchema]
-  });
-  public static UserMongoModel = mongoose.model("User", User.userSchema);
 }

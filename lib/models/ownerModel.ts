@@ -41,8 +41,11 @@ export class Owner extends User {
     const token = req.headers.authorization;
     const githubRes = await github(token).get("/user");
     const data = githubRes.data;
-    const projects = await Project.getProjects(req);
+
+    const projects = await Project.getProjectsOfUser(data.node_id);
+
     const repositories = await Repository.getAll(req);
+
     const owner = new Owner(data.node_id, data.login, projects, repositories);
     return owner;
   }

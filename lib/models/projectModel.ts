@@ -1,11 +1,9 @@
 import * as mongoose from "mongoose";
+import { Request } from "express";
 import { Repository } from "./repositoryModel";
 import { Collaborator } from "./collaboratorModel";
-import { Request } from "express";
 import { github } from "../remoteConnection/github/githubAPI";
 import { User } from "./userModel";
-
-// export const ProjectMongoModel = mongoose.model("Project", ProjectSchema);
 
 export class Project {
   private id: string;
@@ -55,29 +53,6 @@ export class Project {
     return this.collaborators;
   }
 
-  private static RepositorySchema = new mongoose.Schema({
-    repository_id: {
-      type: String,
-      required: true
-    },
-    name: {
-      type: String,
-      required: true
-    },
-    owner_id: {
-      type: String,
-      required: true
-    },
-    description: {
-      type: String,
-      required: true
-    },
-    _url: {
-      type: String,
-      required: true
-    }
-  });
-
   public static ProjectSchema = new mongoose.Schema({
     name: {
       type: String,
@@ -90,7 +65,7 @@ export class Project {
     description: {
       type: String
     },
-    repositories: [Project.RepositorySchema]
+    repositories: [Repository.RepositoryMongoModel.schema]
   });
 
   public static ProjectMongoModel = mongoose.model(
@@ -116,12 +91,40 @@ export class Project {
     return result;
   }
 
-  public static async getProjects(req: Request): Promise<Project[]> {
-    const token = req.headers.authorization;
-    const userGitRes = await github(token).get("/user");
-    const userGitData = userGitRes.data;
+  // /**************************************************************************
+  //  * Get projects of the user who send the request.
+  //  * @param req the request which is sent by user
+  //  * @returns {Promise<Project[]>} - a list of projects
+  //  */
+  // public static async getProjects(req: Request): Promise<Project[]> {
+  //   const token = req.headers.authorization;
+  //   const userGitRes = await github(token).get("/user");
+  //   const userGitData = userGitRes.data;
+  //   const userMongoData = await User.UserMongoModel.findOne({
+  //     node_id: userGitData.node_id
+  //   });
+  //   if (!userMongoData) return [];
+  //   if (!userMongoData.projects) return [];
+  //   let result: Project[] = [];
+  //   for (const project of userMongoData.projects) {
+  //     const projectObj: Project = new Project(
+  //       project._id,
+  //       project.name,
+  //       project.owner_id
+  //     );
+  //     result.push(projectObj);
+  //   }
+  //   return result;
+  // }
+
+  /************************************************************************
+   * Get the projects of the user
+   * @param token the access token
+   * @param userId the node_id of the user
+   */
+  public static async getProjectsOfUser(userId: string): Promise<Project[]> {
     const userMongoData = await User.UserMongoModel.findOne({
-      node_id: userGitData.node_id
+      node_id: userId
     });
     if (!userMongoData) return [];
     if (!userMongoData.projects) return [];
