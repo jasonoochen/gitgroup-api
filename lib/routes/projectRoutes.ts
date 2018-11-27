@@ -1,18 +1,32 @@
 // /lib/routes/crmRoutes.ts
-import { Request, Response, Application } from "express";
-import { ProjectController } from "./../controllers/projectController";
+import { Request, Response, Application, Router } from "express";
+import { Authorization } from "./../models/authorization";
+import { Project } from "../models/projectModel";
 
 export class ProjectRoutes {
-  public projectController: ProjectController = new ProjectController();
+  private router: Router;
+
+  constructor() {
+    this.router = Router();
+
+    this.router.post(
+      "/new",
+      Authorization.authenticate,
+      async (req: Request, res: Response) => {
+        const project = new Project(
+          undefined,
+          req.body.name,
+          req.body.owner_id,
+          req.body.description,
+          req.body.repositories
+        );
+        const savedInfo = await project.saveToMongo(req);
+        res.status(200).send(savedInfo);
+      }
+    );
+  }
 
   public routes(app: Application): void {
-    app.route("/").get((req: Request, res: Response) => {
-      res.status(200).send({
-        message: "GET request successfulll!!!!"
-      });
-    });
-
-    app.route("/project").post(this.projectController.addNewProject);
-    app.route("/project").get(this.projectController.getAllProjects);
+    app.use("/project", this.router);
   }
 }

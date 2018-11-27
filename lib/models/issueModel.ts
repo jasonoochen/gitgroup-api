@@ -98,7 +98,8 @@ export class Issue {
   public getRepos(): string {
     return this.repos;
   }
-  /**
+
+  /************************************************************************
    * Get all issues for specific user and his repository
    * @param username
    * @param reposName
@@ -128,6 +129,9 @@ export class Issue {
     return issues;
   }
 
+  /************************************************************************
+   * save the issue to the GitHub.
+   */
   public async save(): Promise<any> {
     const post = {
       title: this.title,

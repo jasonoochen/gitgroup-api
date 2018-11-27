@@ -46,6 +46,15 @@ npm run start
 
 ## API list
 
+### User
+
+- _GET /user_ - get the user information who holds this authorization token
+
 ### Repository
 
-- _/repos_ - get all repositories of the owner
+- _GET /repos_ - get all repositories of the owner
+
+### Project
+
+- _POST /project/new_ - create a new project to owner
+  - body: {name: your project name}

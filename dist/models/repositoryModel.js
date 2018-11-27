@@ -8,16 +8,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const githubAPI_1 = require("remoteConnection/github/githubAPI");
+const issueModel_1 = require("./issueModel");
+const githubAPI_1 = require("../remoteConnection/github/githubAPI");
 class Repository {
-    constructor(name, owner, issues, kanbans, collaborators, id) {
-        if (id)
-            this.id = id;
+    constructor(id, name, owner, description, issues, kanbans, collaborators) {
+        this.id = id;
         this.name = name;
         this.owner = owner;
-        this.issues = issues.slice(0);
-        this.kanbans = kanbans.slice(0);
-        this.collaborators = collaborators.slice(0);
+        this.description = description;
+        if (issues)
+            this.issues = issues.slice(0);
+        if (kanbans)
+            this.kanbans = kanbans.slice(0);
+        if (collaborators)
+            this.collaborators = collaborators.slice(0);
     }
     getId() {
         return this.id;
@@ -46,7 +50,29 @@ class Repository {
         const collaborators = this.collaborators.slice(0);
         return collaborators;
     }
-    save() {
+    /**
+     * Get all the repositories of owener from Github
+     * @param {Request} req - the user request including the auth header
+     * @returns {Promise<any>} if success, return Promise<Repository> , else, return Promise<any>
+     */
+    static getAll(req) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let reposDatas;
+            let reposes = [];
+            const token = req.headers.authorization;
+            reposDatas = yield githubAPI_1.github(token).get("/user/repos", {
+                params: {
+                    type: "owner"
+                }
+            });
+            for (let data of reposDatas.data) {
+                const issues = yield issueModel_1.Issue.getAllIssues(data.owner.login, data.name);
+                reposes.push(new Repository(data.node_id, data.name, data.owner.login, data.description, issues));
+            }
+            return reposes;
+        });
+    }
+    save(token) {
         return __awaiter(this, void 0, void 0, function* () {
             const post = {
                 name: this.name,
@@ -54,7 +80,7 @@ class Repository {
             };
             let result;
             try {
-                result = yield githubAPI_1.githubApi.post("/user/repos", post);
+                result = yield githubAPI_1.github(token).post("/user/repos", post);
                 this.owner = result.data.owner.login;
                 this.id = result.data.node_id;
                 // save issues

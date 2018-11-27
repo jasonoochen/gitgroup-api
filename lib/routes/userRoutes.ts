@@ -1,25 +1,31 @@
 import { Application, Request, Response, Router } from "express";
-import { Repository } from "./../models/repositoryModel";
 import { Authorization } from "./../models/authorization";
+import { Owner } from "./../models/ownerModel";
 
-export class RepositoryRoutes {
+export class UserRoutes {
   private router: Router;
+
   constructor() {
     this.router = Router();
 
     /**
-     * GET /repos - get all repository
+     * GET /user
      */
     this.router.get(
       "/",
       Authorization.authenticate,
       async (req: Request, res: Response) => {
-        const reposes: Repository[] = await Repository.getAll(req);
-        res.status(200).send(reposes);
+        const owner = await Owner.getOwner(req);
+        res.status(200).send(owner);
       }
     );
   }
-  public routes(app: Application): void {
-    app.use("/repos", this.router);
+
+  /**
+   * Bound all the routes
+   * @param app express application
+   */
+  public routes(app: Application) {
+    app.use("/user", this.router);
   }
 }

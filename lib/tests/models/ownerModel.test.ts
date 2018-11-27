@@ -3,10 +3,10 @@ import { Owner } from "./../../models/ownerModel";
 
 describe("test owner class constructor", () => {
   it("should create a new basic class with id and name", () => {
-    const owner: Owner = new Owner("test name", "1");
+    const owner: Owner = new Owner("1","test name");
     expect(owner).toMatchObject({
-      name: "test name",
-      id: "1"
+      id: "1",
+      name: "test name"
     });
   });
 });

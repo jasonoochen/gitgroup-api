@@ -1,36 +1,48 @@
+import { Request } from "express";
 import { Issue } from "./issueModel";
 import { Kanban } from "./kanbanModel";
 import { Collaborator } from "./collaboratorModel";
-import { githubApi } from "../remoteConnection/github/githubAPI";
+import { github } from "../remoteConnection/github/githubAPI";
+import * as mongoose from "mongoose";
 
 export class Repository {
-  private id: string;
-  private name: string;
-  private owner: string; // owner name
-  private description: string;
+  private repository_id: string;
+  private name: string; // the name of the repository
+  private owner_id: string; // owner id
+  private description: string; // the description of the repository
+  private _url: string; // the github url of the repository
+
   private issues: Issue[]; // can get it using 'owner' and 'name' /repos/{owner}/{name}/issues
   private kanbans: Kanban[];
   private collaborators: Collaborator[];
   constructor(
-    id?: string,
+    repository_id?: string,
     name?: string,
     owner?: string,
     description?: string,
+    url?: string,
     issues?: Issue[],
     kanbans?: Kanban[],
     collaborators?: Collaborator[]
   ) {
-    this.id = id;
+    this.repository_id = repository_id;
     this.name = name;
-    this.owner = owner;
+    this.owner_id = owner;
     this.description = description;
+    this._url = url;
     if (issues) this.issues = issues.slice(0);
     if (kanbans) this.kanbans = kanbans.slice(0);
     if (collaborators) this.collaborators = collaborators.slice(0);
   }
 
+  public get url(): string {
+    return this._url;
+  }
+  public set url(value: string) {
+    this._url = value;
+  }
   public getId(): string {
-    return this.id;
+    return this.repository_id;
   }
 
   public getName(): string {
@@ -38,7 +50,7 @@ export class Repository {
   }
 
   public getOwner(): string {
-    return this.owner;
+    return this.owner_id;
   }
 
   public getDescription(): string {
@@ -63,11 +75,42 @@ export class Repository {
     const collaborators: Collaborator[] = this.collaborators.slice(0);
     return collaborators;
   }
+  public static RepositorySchema = new mongoose.Schema({
+    repository_id: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    owner_id: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String
+    },
+    _url: {
+      type: String,
+      required: true
+    }
+  });
 
-  public static async getAll(): Promise<any> {
+  public static RepositoryMongoModel = mongoose.model(
+    "repositories",
+    Repository.RepositorySchema
+  );
+  /**
+   * Get all the repositories of owener from Github
+   * @param {Request} req - the user request including the auth header
+   * @returns {Promise<any>} if success, return Promise<Repository> , else, return Promise<any>
+   */
+  public static async getAll(req: Request): Promise<Repository[]> {
     let reposDatas: any;
     let reposes: Repository[] = [];
-    reposDatas = await githubApi.get("/user/repos", {
+    const token = req.headers.authorization;
+    reposDatas = await github(token).get("/user/repos", {
       params: {
         type: "owner"
       }
@@ -80,6 +123,7 @@ export class Repository {
           data.name,
           data.owner.login,
           data.description,
+          data.html_url,
           issues
         )
       );
@@ -87,16 +131,46 @@ export class Repository {
     return reposes;
   }
 
-  public async save(): Promise<any> {
+  /**
+   * Get all the repositories of owener from Github
+   * @param {Request} req - the user request including the auth header
+   * @returns {Promise<any>} if success, return Promise<Repository> , else, return Promise<any>
+   */
+  public static async getReposOfOwner(req: Request): Promise<Repository[]> {
+    let reposDatas: any;
+    let reposes: Repository[] = [];
+    const token = req.headers.authorization;
+    reposDatas = await github(token).get("/user/repos", {
+      params: {
+        type: "owner"
+      }
+    });
+    for (let data of reposDatas.data) {
+      const issues = await Issue.getAllIssues(data.owner.login, data.name);
+      reposes.push(
+        new Repository(
+          data.node_id,
+          data.name,
+          data.owner.login,
+          data.description,
+          data.html_url,
+          issues
+        )
+      );
+    }
+    return reposes;
+  }
+
+  public async save(token: string): Promise<any> {
     const post: any = {
       name: this.name,
       description: this.description
     };
     let result: any;
     try {
-      result = await githubApi.post("/user/repos", post);
-      this.owner = result.data.owner.login;
-      this.id = result.data.node_id;
+      result = await github(token).post("/user/repos", post);
+      this.owner_id = result.data.owner.login;
+      this.repository_id = result.data.node_id;
       // save issues
       // save kanbans
       // save collaborators
