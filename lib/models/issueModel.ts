@@ -1,7 +1,7 @@
 import { githubApiPreview } from "../remoteConnection/github/githubAPI";
 
 export class Issue {
-  private id: string;
+  private issueId: string;
   private owner: string;
   private repos: string;
   private title: string;
@@ -23,7 +23,7 @@ export class Issue {
     repos?: string,
     state?: string
   ) {
-    this.id = id;
+    this.issueId = id;
     this.title = title;
     this.body = body;
     this.owner = owner;
@@ -36,8 +36,8 @@ export class Issue {
   /**
    * @returns the id of the issue
    */
-  public getId(): string {
-    return this.id;
+  public getIssueId(): string {
+    return this.issueId;
   }
 
   /**
@@ -143,7 +143,7 @@ export class Issue {
         `/repos/${this.owner}/${this.repos}/issues`,
         post
       );
-      this.id = result.data.node_id;
+      this.issueId = result.data.node_id;
     } catch (error) {
       throw error;
     }

@@ -4,7 +4,7 @@ let testIssue: Issue;
 
 describe("Test the constructor of the Issue.", () => {
   it("should create a new Issue object when the input is correct.", () => {
-    const issueObj: Issue = new Issue(       
+    const issueObj: Issue = new Issue(
       "1",
       "test title",
       "test body",
@@ -12,7 +12,7 @@ describe("Test the constructor of the Issue.", () => {
       "test repos",
       "open"
     );
-    expect(issueObj).toMatchObject({        
+    expect(issueObj).toMatchObject({
       id: "1",
       title: "test title",
       body: "test body",
@@ -22,7 +22,7 @@ describe("Test the constructor of the Issue.", () => {
     });
   });
   it("should throw a RangeError when the input state is neither 'open' nor 'close'", () => {
-    const constructorWithWrongInput = () => {   
+    const constructorWithWrongInput = () => {
       return new Issue(
         "1",
         "test title",
@@ -49,7 +49,7 @@ beforeEach(() => {
 
 describe("The function getId()", () => {
   it("should return the correct id of the Issue object", () => {
-    expect(testIssue.getId()).toEqual("1");
+    expect(testIssue.getIssueId()).toEqual("1");
   });
 });
 

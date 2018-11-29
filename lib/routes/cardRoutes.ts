@@ -35,6 +35,43 @@ export class CardRoutes {
         res.status(200).send(result);
       }
     );
+
+    /**
+     * POST /cards/add_new_card/:kanban_id/:column_id
+     *  create a new card.
+     *  the request body format:
+     *    {issueId, title, body, owner, repos, state, note, id?}
+     */
+    this.router.post(
+      "/add_new_card/:kanban_id/:column_id",
+      async (req: Request, res: Response) => {
+        const {
+          id,
+          issueId,
+          title,
+          body,
+          owner,
+          repos,
+          state,
+          note
+        } = req.body;
+        const kanbanId = req.params.kanban_id;
+        const columnId = req.params.column_id;
+        let theIssue = new Issue(issueId, title, body, owner, repos, state);
+        let theCard = new Card(theIssue, note, kanbanId, columnId, id);
+        const result = await theCard.saveToMongo();
+        res.status(200).send(result);
+      }
+    );
+
+    this.router.delete(
+      "/:kanban_id/:column_id/:card_id",
+      async (req: Request, res: Response) => {
+        const { kanban_id, column_id, card_id } = req.params;
+        const result = await Card.deleteACard(kanban_id, column_id, card_id);
+        res.status(200).send(result);
+      }
+    );
   }
 
   public routes(app: Application): void {
