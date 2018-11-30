@@ -1,9 +1,41 @@
 import * as mongoose from "mongoose";
+import { RepositoryMongo } from "./repositoryModel";
+
+export class ProjectMongo {
+  public static ProjectSchema = new mongoose.Schema({
+    name: {
+      type: String,
+      required: true
+    },
+    owner_id: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String
+    },
+    repositories: [RepositoryMongo.RepositoryMongoModel.schema],
+    kanbanIds: {
+      type: [String],
+      default: []
+    }
+  });
+
+  public static ProjectMongoModel = mongoose.model(
+    "projects",
+    ProjectMongo.ProjectSchema
+  );
+}
+
+//--------------------------------------------------------------------------
+// Class Project
+//--------------------------------------------------------------------------
+
 import { Request } from "express";
 import { Repository } from "./repositoryModel";
 import { Collaborator } from "./collaboratorModel";
 import { github } from "../remoteConnection/github/githubAPI";
-import { User } from "./userModel";
+import { User, UserMongo } from "./userModel";
 
 export class Project {
   private id: string;
@@ -53,33 +85,13 @@ export class Project {
     return this.collaborators;
   }
 
-  public static ProjectSchema = new mongoose.Schema({
-    name: {
-      type: String,
-      required: true
-    },
-    owner_id: {
-      type: String,
-      required: true
-    },
-    description: {
-      type: String
-    },
-    repositories: [Repository.RepositoryMongoModel.schema]
-  });
-
-  public static ProjectMongoModel = mongoose.model(
-    "projects",
-    Project.ProjectSchema
-  );
-
   /*************************************************************************
    * Given a project ID, get all the names of repositories of that project.
    * @param projectId
    * @returns {string[]} - the list of the names of the repositories
    */
   public static async getReposNamesOfProject(projectId: string) {
-    const projectMongoData = await Project.ProjectMongoModel.findById(
+    const projectMongoData = await ProjectMongo.ProjectMongoModel.findById(
       projectId
     );
     if (!projectMongoData) return [];
@@ -91,39 +103,13 @@ export class Project {
     return result;
   }
 
-  // /**************************************************************************
-  //  * Get projects of the user who send the request.
-  //  * @param req the request which is sent by user
-  //  * @returns {Promise<Project[]>} - a list of projects
-  //  */
-  // public static async getProjects(req: Request): Promise<Project[]> {
-  //   const token = req.headers.authorization;
-  //   const userGitRes = await github(token).get("/user");
-  //   const userGitData = userGitRes.data;
-  //   const userMongoData = await User.UserMongoModel.findOne({
-  //     node_id: userGitData.node_id
-  //   });
-  //   if (!userMongoData) return [];
-  //   if (!userMongoData.projects) return [];
-  //   let result: Project[] = [];
-  //   for (const project of userMongoData.projects) {
-  //     const projectObj: Project = new Project(
-  //       project._id,
-  //       project.name,
-  //       project.owner_id
-  //     );
-  //     result.push(projectObj);
-  //   }
-  //   return result;
-  // }
-
   /************************************************************************
    * Get the projects of the user
    * @param token the access token
    * @param userId the node_id of the user
    */
   public static async getProjectsOfUser(userId: string): Promise<Project[]> {
-    const userMongoData = await User.UserMongoModel.findOne({
+    const userMongoData = await UserMongo.UserMongoModel.findOne({
       node_id: userId
     });
     if (!userMongoData) return [];
@@ -150,18 +136,18 @@ export class Project {
       repositories: this.repositories
     };
 
-    const projectMongo = new Project.ProjectMongoModel(project);
+    const projectMongo = new ProjectMongo.ProjectMongoModel(project);
     const savedProject = await projectMongo.save();
     project["_id"] = savedProject._id;
     this.id = savedProject._id;
 
     // get user from mongo db
-    let userMongoData = await User.UserMongoModel.findOne({
+    let userMongoData = await UserMongo.UserMongoModel.findOne({
       node_id: this.owner_id
     });
 
     if (!userMongoData) {
-      const userMongo = new User.UserMongoModel({
+      const userMongo = new UserMongo.UserMongoModel({
         node_id: this.owner_id,
         name: user.getName()
       });
@@ -174,7 +160,7 @@ export class Project {
       userMongoData.projects.push(project);
     }
 
-    const newUserMongo = new User.UserMongoModel(userMongoData);
+    const newUserMongo = new UserMongo.UserMongoModel(userMongoData);
     const result = await newUserMongo.save();
 
     return result;

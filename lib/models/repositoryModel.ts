@@ -1,9 +1,38 @@
+import * as mongoose from "mongoose";
+export class RepositoryMongo {
+  public static RepositorySchema = new mongoose.Schema({
+    repository_id: {
+      type: String,
+      required: true
+    },
+    name: {
+      type: String,
+      required: true
+    },
+    owner_id: {
+      type: String,
+      required: true
+    },
+    description: {
+      type: String
+    },
+    _url: {
+      type: String,
+      required: true
+    }
+  });
+
+  public static RepositoryMongoModel = mongoose.model(
+    "repositories",
+    RepositoryMongo.RepositorySchema
+  );
+}
+
 import { Request } from "express";
 import { Issue } from "./issueModel";
 import { Kanban } from "./kanbanModel";
 import { Collaborator } from "./collaboratorModel";
 import { github } from "../remoteConnection/github/githubAPI";
-import * as mongoose from "mongoose";
 
 export class Repository {
   private repository_id: string;
@@ -75,32 +104,6 @@ export class Repository {
     const collaborators: Collaborator[] = this.collaborators.slice(0);
     return collaborators;
   }
-  public static RepositorySchema = new mongoose.Schema({
-    repository_id: {
-      type: String,
-      required: true
-    },
-    name: {
-      type: String,
-      required: true
-    },
-    owner_id: {
-      type: String,
-      required: true
-    },
-    description: {
-      type: String
-    },
-    _url: {
-      type: String,
-      required: true
-    }
-  });
-
-  public static RepositoryMongoModel = mongoose.model(
-    "repositories",
-    Repository.RepositorySchema
-  );
   /**
    * Get all the repositories of owener from Github
    * @param {Request} req - the user request including the auth header
